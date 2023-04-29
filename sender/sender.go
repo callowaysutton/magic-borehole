@@ -81,7 +81,7 @@ func main() {
 	totalSize := fileInfo.Size()
 
 	// Calculate the total number of chunks
-	numChunks := ((int(totalSize) + int(chunkSize) - 1) / int(chunkSize)) + 1 // Round up to the nearest integer
+	numChunks := ((int(totalSize) + int(chunkSize) - 1) / int(chunkSize)) // Round up to the nearest integer
 
     err = waitForStatus(conn, "ready")
 	if err != nil {
@@ -132,7 +132,7 @@ func main() {
 	// Loop through the iterations
 	for i := 0; i <= total; i++ {
 		// Calculate the percentage
-		percent := int(chunkNumber * 100 / total)
+		percent := int(chunkNumber * 100 / total) + 1
 		if lastPercent == percent {
 			break
 		} else {

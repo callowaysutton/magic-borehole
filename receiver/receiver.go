@@ -15,8 +15,6 @@ import (
 )
 
 var (
-	read_chunks   = 0
-	total_chunks  = 10000000
 	outputFile, _ = os.Create("received.bin")
 )
 
@@ -32,7 +30,7 @@ type Metadata struct {
 	TotalChunks  int `json:"total_chunks"`
 }
 
-type ServerResponse struct {
+type RelayResponse struct {
 	Data     string   `json:"data"`
 	Metadata Metadata `json:"metadata"`
 }
@@ -106,10 +104,10 @@ func main() {
 			os.Exit(1)
 		}
 
-		var serverResponse ServerResponse
-		err = json.Unmarshal(response, &serverResponse)
+		var RelayResponse RelayResponse
+		err = json.Unmarshal(response, &RelayResponse)
 
-		decodedData, err := base64.StdEncoding.DecodeString(serverResponse.Data)
+		decodedData, err := base64.StdEncoding.DecodeString(RelayResponse.Data)
 		if err != nil {
 			log.Printf("failed to decode Base64 data: %v", err)
 			os.Exit(1)
@@ -130,12 +128,12 @@ func main() {
 		width := 50
 
 		// Define the total number of iterations
-		total := serverResponse.Metadata.TotalChunks
+		total := RelayResponse.Metadata.TotalChunks
 
 	// Loop through the iterations
 		for i := 0; i <= total; i++ {
 			// Calculate the percentage
-			percent := (receivedChunks * 100 / total) + 1
+			percent := (receivedChunks * 100 / total)
 			if lastPercent == percent {
 				break
 			} else {
@@ -171,10 +169,10 @@ func main() {
 		}
 
 
-		receivedChunks++
-		if receivedChunks == serverResponse.Metadata.TotalChunks {
+		if receivedChunks == RelayResponse.Metadata.TotalChunks {
 			fmt.Println(" All chunks received successfully!")
 			break
 		}
+		receivedChunks++
 	}
 }
