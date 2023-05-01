@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"encoding/base64"
+	"time"
 
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/gorilla/websocket"
@@ -98,11 +99,14 @@ func main() {
 	var receivedChunks int
 	lastPercent := 0
 	for {
+		start := time.Now() // Start the timer to see how much data was received per second
 		_, response, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("failed to read message from server: %v", err)
 			os.Exit(1)
 		}
+
+		elapsed := time.Since(start) // End the timer
 
 		var RelayResponse RelayResponse
 		err = json.Unmarshal(response, &RelayResponse)
@@ -119,8 +123,6 @@ func main() {
 			os.Exit(1)
 		}
 
-
-
 		from, _ := colorful.Hex("#FFA500")
 		to, _ := colorful.Hex("#FF4500")
 
@@ -129,6 +131,7 @@ func main() {
 
 		// Define the total number of iterations
 		total := RelayResponse.Metadata.TotalChunks
+		// size := RelayResponse.Metadata.ChunkSize
 
 	// Loop through the iterations
 		for i := 0; i <= total; i++ {
@@ -162,7 +165,7 @@ func main() {
 			bar += strings.Repeat(" ", width-barWidth)
 
 			bar += " "
-			bar += fmt.Sprintf("[ %d%% ]", percent)
+			bar += fmt.Sprintf("[ %d%% ] %d Mbps", percent, 1000000 / elapsed.Microseconds())
 
 			// Print the progress bar
 			fmt.Printf("\r%s", bar)
